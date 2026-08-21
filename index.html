@@ -513,6 +513,14 @@
       </div>
 
       <div class="panel" id="panel-orders">
+        <div class="admin-tabs" style="margin-bottom:16px;">
+          <button class="admin-tab active" id="ordersViewActive" onclick="showOrdersView('active')">Active</button>
+          <button class="admin-tab" id="ordersViewArchive" onclick="showOrdersView('archive')">Archive</button>
+        </div>
+        <div class="admin-tabs" id="archiveSubnav" style="display:none; margin-bottom:16px; background:var(--paper-dim);">
+          <button class="admin-tab active" id="archiveTabCancelled" onclick="showArchiveTab('cancelled')">Cancelled</button>
+          <button class="admin-tab" id="archiveTabConfirmed" onclick="showArchiveTab('confirmed')">Confirmed</button>
+        </div>
         <div id="ordersList"></div>
       </div>
 
@@ -980,11 +988,32 @@ async function resetDemoData(){
 }
 
 /* ---------------- admin: orders ---------------- */
+let ordersView = 'active';
+let archiveTab = 'cancelled';
+function showOrdersView(view){
+  ordersView = view;
+  document.getElementById('ordersViewActive').classList.toggle('active', view==='active');
+  document.getElementById('ordersViewArchive').classList.toggle('active', view==='archive');
+  document.getElementById('archiveSubnav').style.display = view==='archive' ? 'flex' : 'none';
+  renderOrders();
+}
+function showArchiveTab(tab){
+  archiveTab = tab;
+  document.getElementById('archiveTabCancelled').classList.toggle('active', tab==='cancelled');
+  document.getElementById('archiveTabConfirmed').classList.toggle('active', tab==='confirmed');
+  renderOrders();
+}
 function renderOrders(){
   const list = document.getElementById('ordersList');
   if(!list) return;
-  if(orders.length===0){ list.innerHTML = '<p style="text-align:center; padding:40px; color:var(--ink-soft);">No orders yet.</p>'; return; }
-  list.innerHTML = orders.map((o,idx)=>`
+  let filtered;
+  if(ordersView === 'archive'){
+    filtered = orders.filter(o => o.status === archiveTab);
+  } else {
+    filtered = orders.filter(o => o.status !== 'cancelled' && o.status !== 'confirmed');
+  }
+  if(filtered.length===0){ list.innerHTML = '<p style="text-align:center; padding:40px; color:var(--ink-soft);">No orders here yet.</p>'; return; }
+  list.innerHTML = filtered.map((o,idx)=>`
     <div class="order-card">
       <div class="order-top" onclick="toggleOrder(${idx})">
         <div>
