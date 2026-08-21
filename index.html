@@ -31,15 +31,7 @@
   section{position:relative;}
 
   /* diagonal corner motif — the brand's signature triangle, teal to dark gradient */
-  .corner-cut{position:absolute; width:120px; height:120px; overflow:hidden; pointer-events:none;}
-  .corner-cut::before{
-    content:""; position:absolute; width:170px; height:170px;
-    background:linear-gradient(135deg, var(--teal) 0%, var(--teal-dark) 100%);
-  }
-  .corner-cut.bl{bottom:0; left:0;}
-  .corner-cut.bl::before{bottom:0; left:0; transform:translate(-50%,50%) rotate(0deg);}
-  .corner-cut.tr{top:0; right:0;}
-  .corner-cut.tr::before{top:0; right:0; transform:translate(50%,-50%) rotate(0deg);}
+
 
   /* nav */
   nav{position:sticky; top:0; z-index:900; background:rgba(255,255,255,0.92); backdrop-filter:blur(10px); border-bottom:1px solid var(--line);}
@@ -100,7 +92,6 @@
   .spool-v2::after{content:""; position:absolute; inset:0; margin:auto; width:18px; height:18px; border-radius:50%; background:var(--paper-dim);}
   .spool-v2:hover{transform:translateY(-6px);}
   .spool-v2:nth-child(2), .spool-v2:nth-child(4){margin-top:18px;}
-  .hero .corner-cut.bl{width:90px; height:90px; opacity:0.9;}
 
   /* trust bar */
   .trust{background:var(--teal-dark); padding:22px 0;}
@@ -291,7 +282,6 @@
 
 <div class="page" id="page-home">
 <section class="hero" id="section-hero">
-  <div class="corner-cut bl"></div>
   <div class="wrap hero-grid">
     <div>
       <div class="eyebrow">Doha, Qatar</div>
@@ -379,7 +369,6 @@
 </div>
 <div class="page" id="page-bulk" style="display:none;">
 <section class="bulk" id="bulk">
-  <div class="corner-cut tr"></div>
   <div class="wrap">
     <h2>Ordering for a business, makerspace or school?</h2>
     <p>Bulk pricing starts from 30kg. Get in touch for a quote and lead time.</p>
@@ -406,7 +395,6 @@
 </div>
 
 <footer>
-  <div class="corner-cut bl"></div>
   <div class="wrap">
     <div class="footer-top">
       <div>
@@ -450,18 +438,28 @@
 <!-- CHECKOUT MODAL -->
 <div class="modal-back" id="checkoutModal">
   <div class="modal">
-    <h3>Almost there</h3>
-    <p class="hint">We'll send this order to you on WhatsApp to confirm.</p>
-    <div class="field" id="paymentField">
-      <label>Payment method</label>
-      <div id="paymentOptions" style="display:flex; flex-direction:column; gap:8px;"></div>
+    <div id="checkoutFormStep">
+      <h3>Almost there</h3>
+      <p class="hint">We'll send this order to you on WhatsApp to confirm.</p>
+      <div class="field" id="paymentField">
+        <label>Payment method</label>
+        <div id="paymentOptions" style="display:flex; flex-direction:column; gap:8px;"></div>
+      </div>
+      <div class="field"><label>Name</label><input id="custName" placeholder="Your name"></div>
+      <div class="field"><label>WhatsApp number</label><input id="custPhone" placeholder="974 XXXX XXXX"></div>
+      <div class="field"><label>Note (optional)</label><textarea id="custNote" placeholder="Delivery address, timing, anything else"></textarea></div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeCheckoutModal()">Cancel</button>
+        <button class="btn btn-primary" id="sendOrderBtn" onclick="submitOrder()">Send order</button>
+      </div>
     </div>
-    <div class="field"><label>Name</label><input id="custName" placeholder="Your name"></div>
-    <div class="field"><label>WhatsApp number</label><input id="custPhone" placeholder="974 XXXX XXXX"></div>
-    <div class="field"><label>Note (optional)</label><textarea id="custNote" placeholder="Delivery address, timing, anything else"></textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="closeCheckoutModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="submitOrder()">Send order</button>
+    <div id="checkoutConfirmStep" style="display:none; text-align:center;">
+      <h3>Order saved ✓</h3>
+      <p id="orderNumberDisplay" class="mono" style="font-size:15px; font-weight:700; color:var(--teal); margin-bottom:10px;"></p>
+      <p class="hint">Tap below to send it to us on WhatsApp — this finishes your order.</p>
+      <a id="waConfirmLink" href="#" target="_blank" rel="noopener" class="btn btn-primary" style="width:100%; text-decoration:none; margin-bottom:10px;">Open WhatsApp to confirm</a>
+      <a id="cardConfirmLink" href="#" target="_blank" rel="noopener" class="btn btn-secondary" style="width:100%; text-decoration:none; display:none; margin-bottom:10px;">Open payment link</a>
+      <button class="btn btn-secondary" style="width:100%;" onclick="closeCheckoutModal()">Done</button>
     </div>
   </div>
 </div>
@@ -765,9 +763,15 @@ function openCheckoutModal(){
       <input type="radio" name="payMethod" value="${o.id}" ${o.id===selectedPayment?'checked':''} onchange="selectedPayment='${o.id}'" style="width:auto;">
       ${o.label}
     </label>`).join('') : '<p style="font-size:13px; color:var(--ink-soft);">No payment methods configured — set them up in the admin Settings page.</p>';
+  document.getElementById('checkoutFormStep').style.display = 'block';
+  document.getElementById('checkoutConfirmStep').style.display = 'none';
   document.getElementById('checkoutModal').classList.add('show');
 }
-function closeCheckoutModal(){ document.getElementById('checkoutModal').classList.remove('show'); }
+function closeCheckoutModal(){
+  document.getElementById('checkoutModal').classList.remove('show');
+  document.getElementById('checkoutFormStep').style.display = 'block';
+  document.getElementById('checkoutConfirmStep').style.display = 'none';
+}
 
 async function submitOrder(){
   const name = document.getElementById('custName').value.trim();
@@ -775,6 +779,10 @@ async function submitOrder(){
   const note = document.getElementById('custNote').value.trim();
   if(!name || !phone){ showToast("Add your name and WhatsApp number"); return; }
   if(!selectedPayment){ showToast("Choose a payment method"); return; }
+
+  const sendBtn = document.getElementById('sendOrderBtn');
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Sending...';
 
   const orderItems = cart.map(c=>{
     const p = products.find(x=>x.id===c.productId);
@@ -804,6 +812,8 @@ async function submitOrder(){
     await batch.commit();
   }catch(e){
     showToast("Couldn't send order — check connection and try again");
+    sendBtn.disabled = false;
+    sendBtn.textContent = 'Send order';
     return;
   }
 
@@ -817,17 +827,34 @@ async function submitOrder(){
   }
   const orderRefId = orderRef.id.slice(-8).toUpperCase();
   const msg = `Hi ${settings.storeName}, I'd like to place an order (${orderRefId}):%0A${lines}%0ATotal: ${total} QR%0A${paymentNote}%0A%0AName: ${name}%0ANote: ${note||'—'}`;
-  window.open(`https://wa.me/${settings.whatsapp}?text=${msg}`, '_blank');
+  const waUrl = `https://wa.me/${settings.whatsapp}?text=${msg}`;
 
+  // show confirmation step with a real, tappable link — reliable on all mobile browsers,
+  // unlike window.open() which mobile browsers often block after an async operation
+  document.getElementById('orderNumberDisplay').textContent = `Order #${orderRefId}`;
+  const waLink = document.getElementById('waConfirmLink');
+  waLink.href = waUrl;
+  const cardLink = document.getElementById('cardConfirmLink');
   if(selectedPayment === 'card' && settings.cardLink){
-    window.open(settings.cardLink, '_blank');
+    cardLink.href = settings.cardLink;
+    cardLink.style.display = 'block';
+  } else {
+    cardLink.style.display = 'none';
   }
+  document.getElementById('checkoutFormStep').style.display = 'none';
+  document.getElementById('checkoutConfirmStep').style.display = 'block';
+
+  // try to open WhatsApp automatically as a convenience — if the browser blocks it,
+  // the visible link above still works since it's a normal tap, not a popup
+  window.open(waUrl, '_blank');
 
   cart = [];
   renderCart(); renderCatalog();
-  closeCheckoutModal(); closeDrawer();
-  showToast("Order sent! Confirm it on WhatsApp.");
+  closeDrawer();
+  sendBtn.disabled = false;
+  sendBtn.textContent = 'Send order';
 }
+
 
 /* ---------------- admin: pin ---------------- */
 function switchAdminTab(tab){
@@ -988,7 +1015,31 @@ function toggleOrder(idx){
 }
 async function updateOrderStatus(orderId, status){
   try{
+    const order = orders.find(o => o.id === orderId);
+    const prevStatus = order ? order.status : null;
+
     await db.collection('orders').doc(orderId).update({status});
+
+    if(order && prevStatus !== status){
+      if(status === 'cancelled' && prevStatus !== 'cancelled'){
+        // order cancelled — give the stock back
+        const batch = db.batch();
+        order.items.forEach(i=>{
+          batch.update(db.collection('products').doc(i.productId), {stock: firebase.firestore.FieldValue.increment(i.qty)});
+        });
+        await batch.commit();
+        showToast("Order cancelled — stock restored");
+        return;
+      }
+      if(prevStatus === 'cancelled' && status !== 'cancelled'){
+        // order un-cancelled — take the stock back out
+        const batch = db.batch();
+        order.items.forEach(i=>{
+          batch.update(db.collection('products').doc(i.productId), {stock: firebase.firestore.FieldValue.increment(-i.qty)});
+        });
+        await batch.commit();
+      }
+    }
     showToast("Order status updated");
   }catch(e){ showToast("Couldn't update — try again"); }
 }
