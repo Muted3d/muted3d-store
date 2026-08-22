@@ -49,8 +49,15 @@
   .btn-primary:hover{background:var(--teal-dark); box-shadow:0 8px 18px -8px rgba(11,88,113,0.5);}
   .btn-ghost{background:transparent; color:var(--ink); border:1.5px solid var(--line);}
   .btn-ghost:hover{border-color:var(--ink);}
-  .nav-cta{display:none;}
-  @media (min-width:860px){.nav-cta{display:inline-flex;}}
+  .wa-float{
+    position:fixed; bottom:24px; right:24px; z-index:850;
+    width:56px; height:56px; border-radius:50%;
+    background:#25D366; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 8px 22px rgba(0,0,0,0.28);
+    transition:transform .2s ease;
+  }
+  .wa-float:hover{transform:scale(1.08);}
+  @media (max-width:600px){.wa-float{width:50px; height:50px; bottom:18px; right:18px;}}
   .cart-btn{position:relative; display:flex; align-items:center; gap:8px; background:var(--ink); color:#fff; padding:10px 16px; border-radius:var(--radius); font-size:13.5px; font-weight:600; transition:background .2s; border:none; cursor:pointer; font-family:'Inter',sans-serif;}
   .cart-btn:hover{background:var(--teal-dark);}
   .cart-count{background:var(--teal); border-radius:3px; font-size:11px; padding:1px 7px; font-family:'JetBrains Mono',monospace;}
@@ -127,7 +134,8 @@
   .grid{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
   @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr);}}
   @media (max-width:560px){.grid{grid-template-columns:1fr;}}
-  .card{background:#fff; border-radius:var(--radius); overflow:hidden; border:1px solid var(--line); transition:transform .25s, box-shadow .25s; display:flex; flex-direction:column;}
+  .card{background:#fff; border-radius:var(--radius); overflow:hidden; border:1px solid var(--line); transition:transform .25s, box-shadow .25s; display:flex; flex-direction:column; user-select:none;}
+  .card *{cursor:default;}
   .card:hover{transform:translateY(-4px); box-shadow:0 20px 34px -18px rgba(10,63,82,0.25); border-color:var(--teal);}
   .swatch-block{height:120px; position:relative;}
   .swatch-block .brand-tag{position:absolute; top:12px; left:12px; background:rgba(255,255,255,0.92); padding:4px 10px; font-size:10.5px; font-weight:700; letter-spacing:0.02em; text-transform:uppercase; border-radius:3px;}
@@ -138,7 +146,12 @@
   .price{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:17px;}
   .price span{font-size:11px; font-weight:500; color:var(--ink-soft);}
   .spec{font-family:'JetBrains Mono',monospace; font-size:10.5px; color:var(--ink-soft);}
-  .card-cta{margin-top:6px; text-align:center; padding:10px; border-radius:4px; background:var(--paper-dim); font-size:13px; font-weight:600; transition:background .2s, color .2s;}
+  .card-cta{margin-top:6px; text-align:center; padding:10px; border-radius:4px; background:var(--paper-dim); font-size:13px; font-weight:600; transition:background .2s, color .2s; cursor:pointer !important;}
+  .qty-stepper{margin-top:6px; display:flex; align-items:center; justify-content:space-between; padding:6px 10px; border-radius:4px; background:var(--teal); color:#fff;}
+  .qty-stepper button{background:rgba(255,255,255,0.18); color:#fff; border:none; width:28px; height:28px; border-radius:4px; font-size:16px; font-weight:700; cursor:pointer; line-height:1;}
+  .qty-stepper button:disabled{opacity:0.35; cursor:not-allowed;}
+  .qty-stepper button:not(:disabled):hover{background:rgba(255,255,255,0.3);}
+  .qty-stepper span{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px;}
   .card-cta:hover{background:var(--teal); color:#fff;}
 
   /* bulk */
@@ -263,7 +276,6 @@
       <a href="javascript:void(0)" onclick="showPage('how')" id="navHow" class="nav-link-item">How It Works</a>
     </div>
     <div class="nav-actions">
-      <a class="btn btn-primary nav-cta" href="https://wa.me/97477181000?text=Hi%20MUTED%203D%2C%20I%27d%20like%20to%20ask%20about%20filament." target="_blank" rel="noopener">Chat on WhatsApp</a>
       <button class="cart-btn" onclick="openDrawer()">Cart <span class="cart-count" id="cartCount">0</span></button>
       <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleMobileMenu()" aria-label="Menu">
         <span></span><span></span><span></span>
@@ -276,9 +288,12 @@
     <a href="javascript:void(0)" onclick="showPage('why'); toggleMobileMenu();">Why Us</a>
     <a href="javascript:void(0)" onclick="showPage('bulk'); toggleMobileMenu();">Bulk Orders</a>
     <a href="javascript:void(0)" onclick="showPage('how'); toggleMobileMenu();">How It Works</a>
-    <a href="https://wa.me/97477181000?text=Hi%20MUTED%203D%2C%20I%27d%20like%20to%20ask%20about%20filament." target="_blank" rel="noopener" class="mobile-whatsapp">Chat on WhatsApp</a>
   </div>
 </nav>
+
+<a href="https://wa.me/97477181000?text=Hi%20MUTED%203D%2C%20I%27d%20like%20to%20ask%20about%20filament." target="_blank" rel="noopener" class="wa-float" aria-label="Chat on WhatsApp">
+  <svg viewBox="0 0 32 32" width="30" height="30" fill="#fff"><path d="M16.004 3C9.377 3 4 8.373 4 15c0 2.386.67 4.617 1.833 6.516L4 29l7.676-1.79A11.94 11.94 0 0 0 16.004 27C22.63 27 28 21.627 28 15S22.63 3 16.004 3zm0 21.818a9.77 9.77 0 0 1-4.98-1.363l-.357-.212-4.553 1.063 1.09-4.43-.234-.372A9.78 9.78 0 0 1 5.2 15c0-5.965 4.847-10.818 10.804-10.818S26.808 9.035 26.808 15 21.961 24.818 16.004 24.818zm5.42-7.86c-.297-.15-1.756-.867-2.028-.966-.272-.099-.47-.148-.668.148-.198.297-.767.965-.94 1.163-.173.198-.347.223-.644.074-.297-.149-1.254-.462-2.388-1.472-.883-.787-1.48-1.76-1.653-2.057-.173-.297-.018-.457.13-.605.134-.133.297-.347.446-.52.148-.174.198-.298.297-.496.099-.198.05-.372-.025-.52-.074-.149-.668-1.61-.916-2.204-.242-.58-.487-.502-.668-.511l-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.478 0 1.462 1.065 2.874 1.213 3.072.148.198 2.096 3.2 5.078 4.487.71.306 1.263.489 1.694.625.712.227 1.36.195 1.872.118.571-.085 1.756-.718 2.004-1.412.248-.694.248-1.288.173-1.412-.074-.124-.272-.198-.57-.347z"/></svg>
+</a>
 
 <div class="page" id="page-home">
 <section class="hero" id="section-hero">
@@ -440,13 +455,11 @@
   <div class="modal">
     <div id="checkoutFormStep">
       <h3>Almost there</h3>
-      <p class="hint">We'll send this order to you on WhatsApp to confirm.</p>
+      <p class="hint">Choose how you'll pay — we'll get your name and number from WhatsApp when you send it.</p>
       <div class="field" id="paymentField">
         <label>Payment method</label>
         <div id="paymentOptions" style="display:flex; flex-direction:column; gap:8px;"></div>
       </div>
-      <div class="field"><label>Name</label><input id="custName" placeholder="Your name"></div>
-      <div class="field"><label>WhatsApp number</label><input id="custPhone" placeholder="974 XXXX XXXX"></div>
       <div class="field"><label>Note (optional)</label><textarea id="custNote" placeholder="Delivery address, timing, anything else"></textarea></div>
       <div class="modal-actions">
         <button class="btn btn-secondary" onclick="closeCheckoutModal()">Cancel</button>
@@ -659,11 +672,26 @@ function render(list){
   grid.innerHTML = list.map(p => {
     try{
       const inCart = cart.find(c=>c.productId===p.id);
-      const remaining = p.stock - (inCart ? inCart.qty : 0);
+      const qtyInCart = inCart ? inCart.qty : 0;
+      const remaining = p.stock - qtyInCart;
       const out = p.stock <= 0;
       const low = !out && p.stock <= 5;
       const safeImage = p.image ? String(p.image).replace(/['"]/g,'') : '';
       const bg = safeImage ? `background-image:url('${safeImage}'); background-size:contain; background-position:center; background-repeat:no-repeat; background-color:#fff;` : `background:${p.hex};`;
+
+      let ctaHtml;
+      if(out && qtyInCart === 0){
+        ctaHtml = `<div class="card-cta" style="cursor:default; opacity:0.5;">Out of stock</div>`;
+      } else if(qtyInCart === 0){
+        ctaHtml = `<div class="card-cta" style="cursor:pointer;" onclick="addToCart('${p.id}')">${low?p.stock+' left — Add to cart':'Add to cart'}</div>`;
+      } else {
+        ctaHtml = `<div class="qty-stepper">
+          <button onclick="changeQty('${p.id}',-1)">−</button>
+          <span>${qtyInCart}</span>
+          <button onclick="changeQty('${p.id}',1)" ${remaining<=0?'disabled':''}>+</button>
+        </div>`;
+      }
+
       return `
       <div class="card" data-brand="${p.brand}">
         <div class="swatch-block" style="${bg}">
@@ -675,7 +703,7 @@ function render(list){
           <div class="card-meta">
             <div class="price">${p.price} <span>QR</span></div>
           </div>
-          <div class="card-cta" style="cursor:pointer;" onclick="${remaining<=0?'':`addToCart('${p.id}')`}">${out?'Out of stock':low?p.stock+' left — Add to cart':'Add to cart'}</div>
+          ${ctaHtml}
         </div>
       </div>`;
     }catch(e){
@@ -781,10 +809,7 @@ function closeCheckoutModal(){
 }
 
 async function submitOrder(){
-  const name = document.getElementById('custName').value.trim();
-  const phone = document.getElementById('custPhone').value.trim();
   const note = document.getElementById('custNote').value.trim();
-  if(!name || !phone){ showToast("Add your name and WhatsApp number"); return; }
   if(!selectedPayment){ showToast("Choose a payment method"); return; }
 
   const sendBtn = document.getElementById('sendOrderBtn');
@@ -801,8 +826,6 @@ async function submitOrder(){
   let orderRef;
   try{
     orderRef = await db.collection('orders').add({
-      customerName: name,
-      customerPhone: phone,
       note: note,
       items: orderItems,
       total: total,
@@ -833,7 +856,7 @@ async function submitOrder(){
     paymentNote += `%0AOr send instantly via Fawran to: ${settings.bank.fawranAlias}`;
   }
   const orderRefId = orderRef.id.slice(-8).toUpperCase();
-  const msg = `Hi ${settings.storeName}, I'd like to place an order (${orderRefId}):%0A${lines}%0ATotal: ${total} QR%0A${paymentNote}%0A%0AName: ${name}%0ANote: ${note||'—'}`;
+  const msg = `Hi ${settings.storeName}, I'd like to place an order (${orderRefId}):%0A${lines}%0ATotal: ${total} QR%0A${paymentNote}%0ANote: ${note||'—'}`;
   const waUrl = `https://wa.me/${settings.whatsapp}?text=${msg}`;
 
   // show confirmation step with a real, tappable link — reliable on all mobile browsers,
@@ -1018,7 +1041,7 @@ function renderOrders(){
       <div class="order-top" onclick="toggleOrder(${idx})">
         <div>
           <div class="order-id">${o.id.slice(-8).toUpperCase()} · ${o.createdAt && o.createdAt.toDate ? o.createdAt.toDate().toLocaleString() : ''}</div>
-          <div style="font-weight:700; font-size:14px;">${o.customerName} — <span class="mono">${o.total} QR</span></div>
+          <div style="font-weight:700; font-size:14px;">Order #${o.id.slice(-8).toUpperCase()} — <span class="mono">${o.total} QR</span></div>
         </div>
         <select class="status-select" onclick="event.stopPropagation()" onchange="updateOrderStatus('${o.id}', this.value)">
           <option value="pending" ${o.status==='pending'?'selected':''}>Pending</option>
@@ -1028,7 +1051,7 @@ function renderOrders(){
         </select>
       </div>
       <div class="order-detail" id="order-detail-${idx}">
-        <div>Phone: <strong>${o.customerPhone}</strong></div>
+        <div style="font-size:12px; color:var(--ink-soft); margin-bottom:6px;">Customer's name and number appear in the WhatsApp message for this order.</div>
         <div>Payment: <strong>${({cod:'Cash on delivery', bank:'Bank transfer', card:'Card / online'})[o.paymentMethod] || '—'}</strong></div>
         ${o.note ? `<div>Note: ${o.note}</div>` : ''}
         <div style="margin-top:8px;">
